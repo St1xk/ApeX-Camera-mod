@@ -19,7 +19,6 @@ public class PlayerHandler : PanelHandlerBase
 
     private LayerMask acceptedLayers;
 
-    private float                               currentRigLerpValue; // autocomplete wanted lastHealth
     private GorillaTriggerColliderHandIndicator handIndicator;
     private Camera                              pcCamera;
 

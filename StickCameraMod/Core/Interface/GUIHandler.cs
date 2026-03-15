@@ -209,12 +209,15 @@ public class GUIHandler : Singleton<GUIHandler>
         }
 
         // Zoom with Mouse Scroll
-        float scrollInput = UnityInput.Current.scrollDelta.y;
-        if (scrollInput != 0)
+        if (UnityEngine.InputSystem.Mouse.current != null)
         {
-            int currentFOV = (int)FOVSlider.value;
-            int newFOV = Mathf.Clamp(currentFOV - (int)(scrollInput * ZoomSpeed), (int)FOVSlider.minValue, (int)FOVSlider.maxValue);
-            CoreHandler.Instance.SetFOV(newFOV);
+            float scrollInput = UnityEngine.InputSystem.Mouse.current.scroll.ReadValue().y;
+            if (scrollInput != 0)
+            {
+                int currentFOV = (int)FOVSlider.value;
+                int newFOV = Mathf.Clamp(currentFOV - (int)(scrollInput * ZoomSpeed), (int)FOVSlider.minValue, (int)FOVSlider.maxValue);
+                CoreHandler.Instance.SetFOV(newFOV);
+            }
         }
 
         // Reset Camera View
