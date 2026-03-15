@@ -440,12 +440,16 @@ public class GUIHandler : Singleton<GUIHandler>
     {
         if (Canvas == null || mainPanel == null) return;
 
-        // Light blue theme - colors only, no layout changes
-        Color bgPanel  = new Color(0.08f, 0.15f, 0.35f, 0.95f);
-        Color bgLight  = new Color(0.12f, 0.22f, 0.45f, 0.90f);
-        Color accent   = new Color(0.3f, 0.6f, 0.95f, 1f);
-        Color accentDk = new Color(0.2f, 0.45f, 0.8f, 1f);
-        Color textCol  = Color.white;
+        // White and black theme
+        Color bgPanel   = new Color(0.95f, 0.95f, 0.95f, 0.97f);  // light grey panels
+        Color bgDarker  = new Color(0.85f, 0.85f, 0.85f, 0.95f);  // slightly darker for sub-elements
+        Color btnNormal = new Color(0.15f, 0.15f, 0.15f, 1f);     // dark buttons
+        Color btnHover  = new Color(0.30f, 0.30f, 0.30f, 1f);     // hover
+        Color btnPress  = new Color(0.05f, 0.05f, 0.05f, 1f);     // pressed
+        Color sliderFill = new Color(0.10f, 0.10f, 0.10f, 1f);    // black slider fill
+        Color sliderBg  = new Color(0.75f, 0.75f, 0.75f, 0.90f);  // grey slider bg
+        Color textDark  = new Color(0.05f, 0.05f, 0.05f, 1f);     // black text
+        Color textLight = new Color(0.95f, 0.95f, 0.95f, 1f);     // white text (for dark buttons)
 
         // Panels
         foreach (Image img in Canvas.GetComponentsInChildren<Image>(true))
@@ -463,80 +467,85 @@ public class GUIHandler : Singleton<GUIHandler>
         foreach (Button btn in Canvas.GetComponentsInChildren<Button>(true))
         {
             ColorBlock colors = btn.colors;
-            colors.normalColor      = accentDk;
-            colors.highlightedColor = accent;
-            colors.pressedColor     = new Color(0.15f, 0.35f, 0.65f, 1f);
-            colors.selectedColor    = accent;
+            colors.normalColor      = btnNormal;
+            colors.highlightedColor = btnHover;
+            colors.pressedColor     = btnPress;
+            colors.selectedColor    = btnHover;
             btn.colors = colors;
 
             TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
-            if (btnText != null) btnText.color = textCol;
+            if (btnText != null) btnText.color = textLight;
         }
 
         // Sliders
         foreach (Slider slider in Canvas.GetComponentsInChildren<Slider>(true))
         {
             Image fillImg = slider.fillRect?.GetComponent<Image>();
-            if (fillImg != null) fillImg.color = accent;
+            if (fillImg != null) fillImg.color = sliderFill;
 
             Image handleImg = slider.handleRect?.GetComponent<Image>();
-            if (handleImg != null) handleImg.color = textCol;
+            if (handleImg != null) handleImg.color = btnNormal;
 
             Image bgImg = slider.transform.Find("Background")?.GetComponent<Image>();
-            if (bgImg != null) bgImg.color = bgLight;
+            if (bgImg != null) bgImg.color = sliderBg;
         }
 
-        // Text
+        // Text - black on light panels
         foreach (TextMeshProUGUI tmp in Canvas.GetComponentsInChildren<TextMeshProUGUI>(true))
         {
             if (tmp.color.a < 0.1f) continue;
-            tmp.color = textCol;
+            // Skip text inside buttons (those stay white)
+            if (tmp.GetComponentInParent<Button>() != null) continue;
+            tmp.color = textDark;
         }
 
-        // Title
-        Transform topArea = mainPanel.transform.Find("Top");
-        if (topArea != null)
-        {
-            TextMeshProUGUI titleText = topArea.GetComponentInChildren<TextMeshProUGUI>();
-            if (titleText != null)
-            {
-                titleText.text = "ApeX Camera Mod";
-                titleText.color = accent;
-                titleText.fontStyle = FontStyles.Bold;
-            }
-        }
-
-        ReplaceOldCredits();
+        // Rename all UI text to match ApeX features
+        ReplaceAllText();
     }
 
-    private void ReplaceOldCredits()
+    private void ReplaceAllText()
     {
         TextMeshProUGUI[] allText = Canvas.GetComponentsInChildren<TextMeshProUGUI>(true);
         foreach (TextMeshProUGUI tmp in allText)
         {
             if (string.IsNullOrEmpty(tmp.text)) continue;
 
-            string original = tmp.text;
-            string lower = original.ToLower();
+            string name = tmp.gameObject.name;
 
-            // If the text contains any old credit references, check what kind it is
-            bool hasOldCredit = lower.Contains("hansolo") || lower.Contains("hamburbur") ||
-                                lower.Contains("casting should be free") || lower.Contains("castingshouldbefree");
+            // Title
+            if (name == "Title" && tmp.text.ToLower().Contains("casting"))
+                tmp.text = "ApeX Camera Mod";
 
-            if (!hasOldCredit) continue;
+            // Self promo / credits
+            if (name == "SelfPromo")
+                tmp.text = "UI by Casting Should Be Free devs\nMod by St1ck | Discord: st1ckgt";
 
-            // If it looks like a "made by" or credit line, replace the whole thing
-            if (lower.Contains("made by") || lower.Contains("created by") ||
-                lower.Contains("developed by") || lower.Contains("author") ||
-                lower.Contains("credit"))
+            // Camera mode label
+            if (name == "CameraMode")
+                tmp.text = "Spectator Cam";
+
+            // Lock interface button
+            if (tmp.text.Contains("Lock") && tmp.text.Contains("Interface"))
+                tmp.text = "Pin\nOverlay";
+
+            // Player info title
+            if (name == "Title" && tmp.text.Contains("Player Information"))
+                tmp.text = "Spectate Target";
+
+            // Current mode
+            if (name == "CurrentMode")
+                tmp.text = "Current Mode: None";
+
+            // Tagged status
+            if (name == "IsTagged")
+                tmp.text = "Tagged: <color=red>No</color>";
+
+            // General old name replacements
+            string lower = tmp.text.ToLower();
+            if (lower.Contains("hansolo") || lower.Contains("hamburbur") ||
+                lower.Contains("casting should be free") || lower.Contains("castingshouldbefree"))
             {
-                tmp.text = "Made by St1ck\nDiscord: st1ckgt";
-                Debug.Log($"Replaced credit block in '{tmp.gameObject.name}'");
-            }
-            else
-            {
-                // Otherwise just swap out the names
-                string replaced = original;
+                string replaced = tmp.text;
                 replaced = replaced.Replace("HanSolo1000Falcon", "St1ck");
                 replaced = replaced.Replace("HanSolo", "St1ck");
                 replaced = replaced.Replace("hansolo", "St1ck");
@@ -545,7 +554,6 @@ public class GUIHandler : Singleton<GUIHandler>
                 replaced = replaced.Replace("castingshouldbefree", "ApeX Camera Mod");
                 replaced = replaced.Replace("hamburbur", "St1ck");
                 tmp.text = replaced;
-                Debug.Log($"Replaced name in '{tmp.gameObject.name}'");
             }
         }
     }
