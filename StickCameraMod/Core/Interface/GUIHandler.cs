@@ -492,6 +492,35 @@ public class GUIHandler : Singleton<GUIHandler>
             }
         }
 
+        // Scrub any leftover old credits from the AssetBundle
+        ReplaceOldCredits();
+
         Debug.Log("ApeX Camera Mod theme applied successfully!");
+    }
+
+    private void ReplaceOldCredits()
+    {
+        TextMeshProUGUI[] allText = Canvas.GetComponentsInChildren<TextMeshProUGUI>(true);
+        foreach (TextMeshProUGUI tmp in allText)
+        {
+            if (tmp.text == null) continue;
+
+            string original = tmp.text;
+            string replaced = original;
+
+            replaced = replaced.Replace("HanSolo1000Falcon", "St1ck");
+            replaced = replaced.Replace("HanSolo", "St1ck");
+            replaced = replaced.Replace("hansolo", "St1ck");
+            replaced = replaced.Replace("Casting Should Be Free", "ApeX Camera Mod");
+            replaced = replaced.Replace("CastingShouldBeFree", "ApeX Camera Mod");
+            replaced = replaced.Replace("castingshouldbefree", "ApeX Camera Mod");
+            replaced = replaced.Replace("hamburbur", "St1ck");
+
+            if (replaced != original)
+            {
+                tmp.text = replaced;
+                Debug.Log($"Replaced old credit text in '{tmp.gameObject.name}'");
+            }
+        }
     }
 }
