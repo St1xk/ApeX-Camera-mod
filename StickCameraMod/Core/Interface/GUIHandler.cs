@@ -56,12 +56,12 @@ public class GUIHandler : Singleton<GUIHandler>
 
         Canvas.transform.Find("ClosestLava").AddComponent<ClosestTaggedHandler>();
 
-        ApplyApeXTheme();
-
         leaderboardEntryPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("LeaderboardEntry");
 
         leaderboard = Canvas.transform.Find("Leaderboard");
         mainPanel   = Canvas.transform.Find("MainPanel").gameObject;
+
+        ApplyApeXTheme();
 
         playerContent = mainPanel.transform.Find("Players/Viewport/Content");
 
@@ -399,6 +399,12 @@ public class GUIHandler : Singleton<GUIHandler>
 
     private void ApplyApeXTheme()
     {
+        if (Canvas == null || mainPanel == null)
+        {
+            Debug.LogWarning("Canvas or mainPanel is null, skipping theme application");
+            return;
+        }
+
         Color darkBlue = new Color(0.1f, 0.2f, 0.4f, 1f);
         Color lightBlue = new Color(0.4f, 0.7f, 1f, 1f);
 
@@ -413,32 +419,36 @@ public class GUIHandler : Singleton<GUIHandler>
         {
             TextMeshProUGUI titleText = topArea.GetComponentInChildren<TextMeshProUGUI>();
             if (titleText != null)
-                titleText.text = "ApeX Camera Mod";
+                titleText.text = "ApeX Camera Mod v1.1.4";
         }
 
-        // Apply theme to buttons
-        foreach (Button button in Canvas.GetComponentsInChildren<Button>())
+        // Apply theme to all buttons recursively
+        Button[] allButtons = Canvas.GetComponentsInChildren<Button>(true);
+        foreach (Button button in allButtons)
         {
             ColorBlock colors = button.colors;
             colors.normalColor = lightBlue;
             colors.highlightedColor = new Color(0.5f, 0.8f, 1f, 1f);
             colors.pressedColor = darkBlue;
+            colors.selectedColor = lightBlue;
             button.colors = colors;
         }
 
-        // Apply theme to panel images
-        foreach (Image image in Canvas.GetComponentsInChildren<Image>())
+        // Apply theme to all panel images
+        Image[] allImages = Canvas.GetComponentsInChildren<Image>(true);
+        foreach (Image image in allImages)
         {
-            if (image.gameObject != Canvas)
+            if (image.gameObject != Canvas.gameObject)
             {
-                if (image.color.a > 0.5f)
+                Color currentColor = image.color;
+                // Only change if it's not fully transparent and not white text
+                if (currentColor.a > 0.5f && (currentColor.r != 1 || currentColor.g != 1 || currentColor.b != 1))
+                {
                     image.color = darkBlue;
+                }
             }
         }
 
-        // Add title text to leaderboard area
-        Transform leaderboardTitle = leaderboard.parent?.Find("Title");
-        if (leaderboardTitle != null && leaderboardTitle.GetComponent<TextMeshProUGUI>() != null)
-            leaderboardTitle.GetComponent<TextMeshProUGUI>().text = "ApeX - Players";
+        Debug.Log("ApeX Camera Mod theme applied successfully!");
     }
 }
