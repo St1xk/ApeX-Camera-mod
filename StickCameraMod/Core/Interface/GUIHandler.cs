@@ -16,6 +16,8 @@ namespace StickCameraMod.Core.Interface;
 public class GUIHandler : Singleton<GUIHandler>
 {
     public bool HasInitEventSystem;
+    public bool CameraLocked;
+    public bool AutoFollowEnabled = true;
 
     public TextMeshProUGUI FOVText;
     public TextMeshProUGUI NearClipText;
@@ -150,6 +152,42 @@ public class GUIHandler : Singleton<GUIHandler>
 
                 break;
             }
+        }
+
+        // FOV Presets
+        if (UnityInput.Current.GetKeyDown(KeyCode.F1))
+        {
+            CoreHandler.Instance.SetFOV(Constants.FovFishEye);
+            Debug.Log("FOV: Fisheye (170)");
+        }
+        if (UnityInput.Current.GetKeyDown(KeyCode.F2))
+        {
+            CoreHandler.Instance.SetFOV(Constants.FovWide);
+            Debug.Log("FOV: Wide (100)");
+        }
+        if (UnityInput.Current.GetKeyDown(KeyCode.F3))
+        {
+            CoreHandler.Instance.SetFOV(Constants.FovNormal);
+            Debug.Log("FOV: Normal (60)");
+        }
+        if (UnityInput.Current.GetKeyDown(KeyCode.F4))
+        {
+            CoreHandler.Instance.SetFOV(Constants.FovTelephoto);
+            Debug.Log("FOV: Telephoto (30)");
+        }
+
+        // Camera Lock Toggle
+        if (UnityInput.Current.GetKeyDown(KeyCode.L))
+        {
+            CameraLocked = !CameraLocked;
+            Debug.Log($"Camera locked: {CameraLocked}");
+        }
+
+        // Auto-Follow Toggle
+        if (UnityInput.Current.GetKeyDown(KeyCode.A))
+        {
+            AutoFollowEnabled = !AutoFollowEnabled;
+            Debug.Log($"Auto-follow: {AutoFollowEnabled}");
         }
     }
 
