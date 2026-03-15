@@ -119,9 +119,9 @@ public class PlayerHandler : PanelHandlerBase
                                              if (rigLerpingEnabled)
                                                  foreach (VRRig rig in VRRigCache.ActiveRigs.Where(rig =>
                                                                       !Mathf.Approximately(rig.lerpValueBody,
-                                                                              currentRigLerpValue) ||
+                                                                              currentLerp) ||
                                                                       !Mathf.Approximately(rig.lerpValueFingers,
-                                                                              currentRigLerpValue)))
+                                                                              currentLerp)))
                                                  {
                                                      rig.lerpValueBody    = currentLerp;
                                                      rig.lerpValueFingers = currentLerp;
