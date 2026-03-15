@@ -18,10 +18,14 @@ public class GUIHandler : Singleton<GUIHandler>
     public bool HasInitEventSystem;
     public bool CameraLocked;
     public bool AutoFollowEnabled = true;
+    public bool ShowCrosshair = false;
+    public bool ShowPlayerDistance = true;
+    public int ZoomSpeed = 5;
 
     public TextMeshProUGUI FOVText;
     public TextMeshProUGUI NearClipText;
     public TextMeshProUGUI SmoothingText;
+    public TextMeshProUGUI StatusText;
 
     public           Slider                        FOVSlider;
     public           Slider                        NearClipSlider;
@@ -188,6 +192,38 @@ public class GUIHandler : Singleton<GUIHandler>
         {
             AutoFollowEnabled = !AutoFollowEnabled;
             Debug.Log($"Auto-follow: {AutoFollowEnabled}");
+        }
+
+        // Crosshair Toggle
+        if (UnityInput.Current.GetKeyDown(KeyCode.X))
+        {
+            ShowCrosshair = !ShowCrosshair;
+            Debug.Log($"Crosshair: {(ShowCrosshair ? "Enabled" : "Disabled")}");
+        }
+
+        // Player Distance Toggle
+        if (UnityInput.Current.GetKeyDown(KeyCode.D))
+        {
+            ShowPlayerDistance = !ShowPlayerDistance;
+            Debug.Log($"Player distance display: {(ShowPlayerDistance ? "Enabled" : "Disabled")}");
+        }
+
+        // Zoom with Mouse Scroll
+        float scrollInput = UnityInput.Current.scrollDelta.y;
+        if (scrollInput != 0)
+        {
+            int currentFOV = (int)FOVSlider.value;
+            int newFOV = Mathf.Clamp(currentFOV - (int)(scrollInput * ZoomSpeed), (int)FOVSlider.minValue, (int)FOVSlider.maxValue);
+            CoreHandler.Instance.SetFOV(newFOV);
+        }
+
+        // Reset Camera View
+        if (UnityInput.Current.GetKeyDown(KeyCode.R))
+        {
+            CoreHandler.Instance.SetFOV(60);
+            CoreHandler.Instance.SetNearClip(1);
+            CoreHandler.Instance.SetSmoothing(18);
+            Debug.Log("Camera reset to default settings");
         }
     }
 
@@ -405,13 +441,17 @@ public class GUIHandler : Singleton<GUIHandler>
             return;
         }
 
-        Color darkBlue = new Color(0.1f, 0.2f, 0.4f, 1f);
-        Color lightBlue = new Color(0.4f, 0.7f, 1f, 1f);
+        Color darkBlue = new Color(0.08f, 0.15f, 0.35f, 0.95f);
+        Color lightBlue = new Color(0.3f, 0.6f, 0.95f, 1f);
+        Color accentBlue = new Color(0.0f, 0.8f, 1f, 1f);
 
-        // Apply theme to main panel
+        // Apply theme to main panel with slight transparency
         Image mainPanelImage = mainPanel.GetComponent<Image>();
         if (mainPanelImage != null)
+        {
             mainPanelImage.color = darkBlue;
+            mainPanelImage.raycastTarget = true;
+        }
 
         // Add ApeX Camera Mod title at the top
         Transform topArea = mainPanel.transform.Find("Top");

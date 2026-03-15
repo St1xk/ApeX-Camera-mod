@@ -1,1 +1,1 @@
-1.1.3;You are on an outdated version! Please update CastingShouldBeFree before proceeding. Download the newest release here: https://github.com/HanSolo1000Falcon/CastingShouldBeFree/releases/latest
+1.1.4;You are on ApeX Camera Mod v1.1.4! Download the latest release here: https://github.com/St1xk/ApeX-Camera-mod/releases/latest
