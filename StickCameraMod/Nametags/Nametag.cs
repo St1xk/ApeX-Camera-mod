@@ -1,5 +1,3 @@
-using StickCameraMod.Core;
-using StickCameraMod.Core.Interface;
 using StickCameraMod.Utils;
 using GorillaLocomotion;
 using TMPro;
@@ -71,32 +69,19 @@ public class Nametag : MonoBehaviour
     {
         int    fpsActual = associatedRig.isLocal ? (int)(1f / Time.unscaledDeltaTime) : associatedRig.fps;
         string colour    = fpsActual > 60 ? fpsActual > 72 ? "green" : "orange" : "red";
-        string fps       = $"<color={colour}>{fpsActual}</color> FPS";
 
-        // Tagged indicator
         bool isTagged = associatedRig.IsTagged();
-        string tagStatus = isTagged ? " <color=#FF5533>[IT]</color>" : "";
+        string tagStr = isTagged ? " <color=#FF5533>[IT]</color>" : "";
+        string fps = $"<color={colour}>{fpsActual}</color> FPS{tagStr}";
 
-        // Distance from camera
-        string distText = "";
-        if (GUIHandler.Instance != null && GUIHandler.Instance.ShowPlayerDistance &&
-            CameraHandler.Instance != null)
-        {
-            float dist = Vector3.Distance(transform.position, CameraHandler.Instance.transform.position);
-            distText = $"\n<size=60%>{dist:F1}m away</size>";
-        }
+        Color nameCol = isTagged ? new Color(1f, 0.33f, 0f, 1f) : associatedRig.playerColor;
 
         if (ShowTpTag)
         {
             thirdPersonNametag.Nametag.LookAt(Plugin.Instance.PCCamera);
             thirdPersonNametag.Nametag.Rotate(0f, 180f, 0f);
             thirdPersonNametag.FPSText.text = fps;
-            thirdPersonNametag.NameText.color = isTagged
-                ? new Color(1f, 0.33f, 0f, 1f)
-                : associatedRig.playerColor;
-
-            if (thirdPersonNametag.ExtraText != null)
-                thirdPersonNametag.ExtraText.text = tagStatus + distText;
+            thirdPersonNametag.NameText.color = nameCol;
         }
 
         if (!associatedRig.isLocal)
@@ -104,12 +89,7 @@ public class Nametag : MonoBehaviour
             firstPersonNametag.Nametag.LookAt(GTPlayer.Instance.headCollider.transform);
             firstPersonNametag.Nametag.Rotate(0f, 180f, 0f);
             firstPersonNametag.FPSText.text = fps;
-            firstPersonNametag.NameText.color = isTagged
-                ? new Color(1f, 0.33f, 0f, 1f)
-                : associatedRig.playerColor;
-
-            if (firstPersonNametag.ExtraText != null)
-                firstPersonNametag.ExtraText.text = tagStatus + distText;
+            firstPersonNametag.NameText.color = nameCol;
         }
     }
 
@@ -167,28 +147,7 @@ public class Nametag : MonoBehaviour
                                                   ? associatedRig.Creator.NickName
                                                   : associatedRig.playerText1.text;
 
-        // Set player name color to their gorilla color
         nametagComponents.NameText.color = associatedRig.playerColor;
-
-        // Create extra text element for tagged status + distance
-        GameObject extraObj = new GameObject("Extra");
-        extraObj.transform.SetParent(nametagComponents.Nametag, false);
-        nametagComponents.ExtraText = extraObj.AddComponent<TextMeshProUGUI>();
-        nametagComponents.ExtraText.fontSize = nametagComponents.FPSText.fontSize;
-        nametagComponents.ExtraText.alignment = TextAlignmentOptions.Center;
-        nametagComponents.ExtraText.color = Color.white;
-        nametagComponents.ExtraText.enableWordWrapping = false;
-
-        if (Plugin.Instance.CasterFontBold != null)
-        {
-            nametagComponents.ExtraText.font = Plugin.Instance.CasterFontBold;
-            nametagComponents.ExtraText.fontSharedMaterial = new Material(Plugin.Instance.TMP_DistanceField);
-        }
-
-        RectTransform extraRect = extraObj.GetComponent<RectTransform>();
-        RectTransform fpsRect = nametagComponents.FPSText.GetComponent<RectTransform>();
-        extraRect.anchoredPosition = fpsRect.anchoredPosition + new Vector2(0, -fpsRect.sizeDelta.y - 2);
-        extraRect.sizeDelta = fpsRect.sizeDelta;
 
         SetLayer(firstPerson, nametagComponents.Nametag);
 
@@ -234,6 +193,5 @@ public class Nametag : MonoBehaviour
         public TextMeshProUGUI NameText;
         public TextMeshProUGUI PlatformText;
         public TextMeshProUGUI FPSText;
-        public TextMeshProUGUI ExtraText;
     }
 }

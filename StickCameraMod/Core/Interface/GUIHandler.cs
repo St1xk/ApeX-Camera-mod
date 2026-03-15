@@ -466,9 +466,12 @@ public class GUIHandler : Singleton<GUIHandler>
         Color textLight = new Color(0.95f, 0.95f, 0.95f, 1f);     // white text (for dark buttons)
 
         // Step 1: Recolor EVERY image to light grey (nukes all purple)
+        // Skip TMP SubMeshUI and RawImage objects — recoloring them breaks text rendering
         foreach (Image img in Canvas.GetComponentsInChildren<Image>(true))
         {
             if (img.color.a < 0.1f) continue;
+            if (img.gameObject.GetComponent<TMP_SubMeshUI>() != null) continue;
+            if (img.gameObject.GetComponent<TextMeshProUGUI>() != null) continue;
             img.color = bgPanel;
         }
 
