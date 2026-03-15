@@ -90,7 +90,8 @@ public class Plugin : BaseUnityPlugin
         componentHolder.AddComponent<NametagHandler>();
         componentHolder.AddComponent<AutoCaster>();
 
-        StartCoroutine(LoadKnownCheatsAndMods());
+        // Network endpoints removed for offline compatibility
+        // StartCoroutine(LoadKnownCheatsAndMods());
 
         RigUtils.OnRigCosmeticsLoad += rig =>
                                        {
@@ -99,28 +100,6 @@ public class Plugin : BaseUnityPlugin
                                        };
     }
 
-    private IEnumerator LoadKnownCheatsAndMods()
-    {
-        UnityWebRequest webRequest = UnityWebRequest.Get("https://hamburbur.org/data");
-        yield return webRequest.SendWebRequest();
-
-        if (webRequest.result == UnityWebRequest.Result.Success)
-        {
-            try
-            {
-                string json = webRequest.downloadHandler.text;
-                JObject data = JObject.Parse(json);
-                KnownCheats = data["knownCheats"]!.ToObject<Dictionary<string, string>>();
-                KnownMods = data["knownMods"]!.ToObject<Dictionary<string, string>>();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Caught exception when fetching data from https://hamburbur.org/data (" + e.Message + ")");
-            }
-        }
-        else
-        {
-            Debug.LogError("Failed to fetch data from https://hamburbur.org/data (" + webRequest.error + ")");
-        }
-    }
+    // Removed network endpoint for offline compatibility
+    // private IEnumerator LoadKnownCheatsAndMods() { ... }
 }
