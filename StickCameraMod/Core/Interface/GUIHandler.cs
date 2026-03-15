@@ -46,6 +46,8 @@ public class GUIHandler : Singleton<GUIHandler>
     private GameObject playerButtonPrefab;
 
     private Transform  playerContent;
+    private GameObject colorPanel;
+    private Image      colorPreview;
     public  GameObject Canvas { get; private set; }
 
     private void Start()
@@ -111,6 +113,7 @@ public class GUIHandler : Singleton<GUIHandler>
         miniMapCamera.orthographic  = true;
         miniMapCamera.targetTexture = miniMapRenderTexture;
 
+        SetUpColorPanel();
         ApplyApeXTheme();
 
         initTime = Time.time;
@@ -210,6 +213,13 @@ public class GUIHandler : Singleton<GUIHandler>
                 int prevIndex = currentIndex <= 0 ? SetColourPatch.SpawnedRigs.Count - 1 : currentIndex - 1;
                 CoreHandler.Instance.CastedRig = SetColourPatch.SpawnedRigs[prevIndex];
             }
+        }
+
+        // Toggle color panel
+        if (UnityInput.Current.GetKeyDown(KeyCode.F8))
+        {
+            if (colorPanel != null)
+                colorPanel.SetActive(!colorPanel.activeSelf);
         }
     }
 
@@ -448,6 +458,189 @@ public class GUIHandler : Singleton<GUIHandler>
 
         isPlayerTaggedText.text =
                 $"Is Tagged? {(currentRig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
+    }
+
+    private void SetUpColorPanel()
+    {
+        // Create the color panel as a child of the Canvas
+        colorPanel = new GameObject("ColorPanel");
+        colorPanel.transform.SetParent(Canvas.transform, false);
+        colorPanel.AddComponent<DraggableUI>();
+
+        Image panelBg = colorPanel.AddComponent<Image>();
+        panelBg.color = new Color(0.95f, 0.95f, 0.95f, 0.97f);
+
+        RectTransform panelRect = colorPanel.GetComponent<RectTransform>();
+        panelRect.sizeDelta = new Vector2(280, 220);
+        panelRect.anchoredPosition = new Vector2(-300, 0);
+
+        // Title
+        GameObject titleObj = new GameObject("ColorTitle");
+        titleObj.transform.SetParent(colorPanel.transform, false);
+        TextMeshProUGUI titleTmp = titleObj.AddComponent<TextMeshProUGUI>();
+        titleTmp.text = "Player Color";
+        titleTmp.fontSize = 18;
+        titleTmp.fontStyle = FontStyles.Bold;
+        titleTmp.color = new Color(0.05f, 0.05f, 0.05f, 1f);
+        titleTmp.alignment = TextAlignmentOptions.Center;
+        if (Plugin.Instance.CasterFontBold != null)
+        {
+            titleTmp.font = Plugin.Instance.CasterFontBold;
+            titleTmp.fontSharedMaterial = new Material(Plugin.Instance.TMP_DistanceField);
+        }
+        RectTransform titleRect = titleObj.GetComponent<RectTransform>();
+        titleRect.anchorMin = new Vector2(0, 1);
+        titleRect.anchorMax = new Vector2(1, 1);
+        titleRect.sizeDelta = new Vector2(0, 30);
+        titleRect.anchoredPosition = new Vector2(0, -15);
+
+        // Color preview box
+        GameObject previewObj = new GameObject("ColorPreview");
+        previewObj.transform.SetParent(colorPanel.transform, false);
+        colorPreview = previewObj.AddComponent<Image>();
+        float savedR = PlayerPrefs.GetFloat("redValue", 0.5f);
+        float savedG = PlayerPrefs.GetFloat("greenValue", 0.5f);
+        float savedB = PlayerPrefs.GetFloat("blueValue", 0.5f);
+        colorPreview.color = new Color(savedR, savedG, savedB, 1f);
+        RectTransform previewRect = previewObj.GetComponent<RectTransform>();
+        previewRect.anchorMin = new Vector2(0.5f, 1);
+        previewRect.anchorMax = new Vector2(0.5f, 1);
+        previewRect.sizeDelta = new Vector2(40, 40);
+        previewRect.anchoredPosition = new Vector2(0, -50);
+
+        // Create R, G, B sliders
+        CreateColorSlider(colorPanel.transform, "R", new Color(0.9f, 0.2f, 0.2f, 1f), -95, savedR, value =>
+        {
+            PlayerPrefs.SetFloat("redValue", value);
+            GorillaTagger.Instance.UpdateColor(value, PlayerPrefs.GetFloat("greenValue", 0.5f), PlayerPrefs.GetFloat("blueValue", 0.5f));
+            PlayerPrefs.Save();
+            UpdateColorPreview();
+        });
+
+        CreateColorSlider(colorPanel.transform, "G", new Color(0.2f, 0.8f, 0.2f, 1f), -135, savedG, value =>
+        {
+            PlayerPrefs.SetFloat("greenValue", value);
+            GorillaTagger.Instance.UpdateColor(PlayerPrefs.GetFloat("redValue", 0.5f), value, PlayerPrefs.GetFloat("blueValue", 0.5f));
+            UpdateColorPreview();
+        });
+
+        CreateColorSlider(colorPanel.transform, "B", new Color(0.2f, 0.4f, 0.9f, 1f), -175, savedB, value =>
+        {
+            PlayerPrefs.SetFloat("blueValue", value);
+            GorillaTagger.Instance.UpdateColor(PlayerPrefs.GetFloat("redValue", 0.5f), PlayerPrefs.GetFloat("greenValue", 0.5f), value);
+            UpdateColorPreview();
+        });
+
+        colorPanel.SetActive(false);
+    }
+
+    private void CreateColorSlider(Transform parent, string label, Color fillColor, float yPos, float initialValue, UnityEngine.Events.UnityAction<float> onChange)
+    {
+        // Container
+        GameObject container = new GameObject($"{label}Slider");
+        container.transform.SetParent(parent, false);
+        RectTransform containerRect = container.GetComponent<RectTransform>() ?? container.AddComponent<RectTransform>();
+        containerRect.anchorMin = new Vector2(0, 1);
+        containerRect.anchorMax = new Vector2(1, 1);
+        containerRect.sizeDelta = new Vector2(-40, 25);
+        containerRect.anchoredPosition = new Vector2(10, yPos);
+
+        // Label
+        GameObject labelObj = new GameObject($"{label}Label");
+        labelObj.transform.SetParent(container.transform, false);
+        TextMeshProUGUI labelTmp = labelObj.AddComponent<TextMeshProUGUI>();
+        labelTmp.text = label;
+        labelTmp.fontSize = 14;
+        labelTmp.fontStyle = FontStyles.Bold;
+        labelTmp.color = fillColor;
+        labelTmp.alignment = TextAlignmentOptions.Center;
+        if (Plugin.Instance.CasterFontBold != null)
+        {
+            labelTmp.font = Plugin.Instance.CasterFontBold;
+            labelTmp.fontSharedMaterial = new Material(Plugin.Instance.TMP_DistanceField);
+        }
+        RectTransform labelRect = labelObj.GetComponent<RectTransform>();
+        labelRect.anchorMin = new Vector2(0, 0);
+        labelRect.anchorMax = new Vector2(0, 1);
+        labelRect.sizeDelta = new Vector2(25, 0);
+        labelRect.anchoredPosition = new Vector2(12, 0);
+
+        // Slider background
+        GameObject sliderObj = new GameObject($"{label}SliderControl");
+        sliderObj.transform.SetParent(container.transform, false);
+        RectTransform sliderRect = sliderObj.AddComponent<RectTransform>();
+        sliderRect.anchorMin = new Vector2(0, 0);
+        sliderRect.anchorMax = new Vector2(1, 1);
+        sliderRect.offsetMin = new Vector2(30, 2);
+        sliderRect.offsetMax = new Vector2(-5, -2);
+
+        // Background
+        GameObject bgObj = new GameObject("Background");
+        bgObj.transform.SetParent(sliderObj.transform, false);
+        Image bgImg = bgObj.AddComponent<Image>();
+        bgImg.color = new Color(0.75f, 0.75f, 0.75f, 0.9f);
+        RectTransform bgRect = bgObj.GetComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.offsetMin = Vector2.zero;
+        bgRect.offsetMax = Vector2.zero;
+
+        // Fill area
+        GameObject fillArea = new GameObject("Fill Area");
+        fillArea.transform.SetParent(sliderObj.transform, false);
+        RectTransform fillAreaRect = fillArea.AddComponent<RectTransform>();
+        fillAreaRect.anchorMin = Vector2.zero;
+        fillAreaRect.anchorMax = Vector2.one;
+        fillAreaRect.offsetMin = Vector2.zero;
+        fillAreaRect.offsetMax = Vector2.zero;
+
+        GameObject fillObj = new GameObject("Fill");
+        fillObj.transform.SetParent(fillArea.transform, false);
+        Image fillImg = fillObj.AddComponent<Image>();
+        fillImg.color = fillColor;
+        RectTransform fillRect = fillObj.GetComponent<RectTransform>();
+        fillRect.anchorMin = Vector2.zero;
+        fillRect.anchorMax = Vector2.one;
+        fillRect.offsetMin = Vector2.zero;
+        fillRect.offsetMax = Vector2.zero;
+
+        // Handle
+        GameObject handleArea = new GameObject("Handle Slide Area");
+        handleArea.transform.SetParent(sliderObj.transform, false);
+        RectTransform handleAreaRect = handleArea.AddComponent<RectTransform>();
+        handleAreaRect.anchorMin = Vector2.zero;
+        handleAreaRect.anchorMax = Vector2.one;
+        handleAreaRect.offsetMin = Vector2.zero;
+        handleAreaRect.offsetMax = Vector2.zero;
+
+        GameObject handleObj = new GameObject("Handle");
+        handleObj.transform.SetParent(handleArea.transform, false);
+        Image handleImg = handleObj.AddComponent<Image>();
+        handleImg.color = Color.white;
+        RectTransform handleRect = handleObj.GetComponent<RectTransform>();
+        handleRect.sizeDelta = new Vector2(12, 0);
+        handleRect.anchorMin = new Vector2(0, 0);
+        handleRect.anchorMax = new Vector2(0, 1);
+
+        // Slider component
+        Slider slider = sliderObj.AddComponent<Slider>();
+        slider.fillRect = fillRect;
+        slider.handleRect = handleRect;
+        slider.minValue = 0f;
+        slider.maxValue = 1f;
+        slider.value = initialValue;
+        slider.onValueChanged.AddListener(onChange);
+    }
+
+    private void UpdateColorPreview()
+    {
+        if (colorPreview != null)
+        {
+            float r = PlayerPrefs.GetFloat("redValue", 0.5f);
+            float g = PlayerPrefs.GetFloat("greenValue", 0.5f);
+            float b = PlayerPrefs.GetFloat("blueValue", 0.5f);
+            colorPreview.color = new Color(r, g, b, 1f);
+        }
     }
 
     private void ApplyApeXTheme()

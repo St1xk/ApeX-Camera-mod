@@ -34,6 +34,7 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         SetUpCameraModes();
         SetUpCameraSettings();
         SetUpCameraLocking();
+        ApplyVRTheme();
 
         Canvas.SetActive(false);
         initTime = Time.time;
@@ -133,6 +134,91 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         RenderTextureCamera.transform.localRotation = Quaternion.identity;
 
         RenderTextureCamera.targetTexture = renderTexture;
+    }
+
+    private void ApplyVRTheme()
+    {
+        Color bgPanel  = new Color(0.95f, 0.95f, 0.95f, 0.97f);
+        Color btnColor = new Color(0.15f, 0.15f, 0.15f, 1f);
+        Color textDark = new Color(0.05f, 0.05f, 0.05f, 1f);
+        Color textLight = new Color(0.95f, 0.95f, 0.95f, 1f);
+
+        // Recolor all images (skip TMP internal images)
+        foreach (Image img in Canvas.GetComponentsInChildren<Image>(true))
+        {
+            if (img.color.a < 0.1f) continue;
+            if (img.gameObject.GetComponent<TMP_SubMeshUI>() != null) continue;
+            if (img.gameObject.GetComponent<TextMeshProUGUI>() != null) continue;
+            img.color = bgPanel;
+        }
+
+        // Recolor all text to black
+        foreach (TextMeshProUGUI tmp in Canvas.GetComponentsInChildren<TextMeshProUGUI>(true))
+        {
+            if (tmp.color.a < 0.1f) continue;
+            tmp.color = textDark;
+        }
+
+        // Recolor VR buttons (they use colliders, not Unity UI Button)
+        // The +/- buttons and mode buttons have images that should be dark
+        Transform chin = Canvas.transform.Find("MainPanel/Chin");
+        if (chin != null)
+        {
+            foreach (Image img in chin.GetComponentsInChildren<Image>(true))
+            {
+                if (img.color.a < 0.1f) continue;
+                if (img.gameObject.GetComponent<TMP_SubMeshUI>() != null) continue;
+                if (img.gameObject.GetComponent<TextMeshProUGUI>() != null) continue;
+                img.color = btnColor;
+            }
+            foreach (TextMeshProUGUI tmp in chin.GetComponentsInChildren<TextMeshProUGUI>(true))
+                tmp.color = textLight;
+        }
+
+        Transform tunables = Canvas.transform.Find("MainPanel/Tunables");
+        if (tunables != null)
+        {
+            string[] buttonPaths = {
+                "FOVPanel/MoreFOV", "FOVPanel/LessFOV",
+                "NearClipPanel/MoreNearClip", "NearClipPanel/LessNearClip",
+                "SmoothingPanel/MoreSmoothing", "SmoothingPanel/LessSmoothing"
+            };
+            foreach (string path in buttonPaths)
+            {
+                Transform btn = tunables.Find(path);
+                if (btn == null) continue;
+                Image btnImg = btn.GetComponent<Image>();
+                if (btnImg != null) btnImg.color = btnColor;
+                TextMeshProUGUI btnTxt = btn.GetComponentInChildren<TextMeshProUGUI>();
+                if (btnTxt != null) btnTxt.color = textLight;
+            }
+        }
+
+        Transform lockBtn = Canvas.transform.Find("MainPanel/LockButton");
+        if (lockBtn != null)
+        {
+            Image lockImg = lockBtn.GetComponent<Image>();
+            if (lockImg != null) lockImg.color = btnColor;
+            TextMeshProUGUI lockTxt = lockBtn.GetComponentInChildren<TextMeshProUGUI>();
+            if (lockTxt != null) lockTxt.color = textLight;
+        }
+
+        // Replace any old branding
+        foreach (TextMeshProUGUI tmp in Canvas.GetComponentsInChildren<TextMeshProUGUI>(true))
+        {
+            if (string.IsNullOrEmpty(tmp.text)) continue;
+            string lower = tmp.text.ToLower();
+            if (lower.Contains("casting should be free"))
+                tmp.text = tmp.text.Replace("Casting Should Be Free", "ApeX Camera Mod");
+            if (lower.Contains("castingshouldbefree"))
+                tmp.text = tmp.text.Replace("CastingShouldBeFree", "ApeX Camera Mod");
+            if (lower.Contains("hansolo"))
+            {
+                tmp.text = tmp.text.Replace("HanSolo1000Falcon", "St1ck");
+                tmp.text = tmp.text.Replace("HanSolo", "St1ck");
+                tmp.text = tmp.text.Replace("hansolo", "St1ck");
+            }
+        }
     }
 
     private void SetUpCameraModes()
