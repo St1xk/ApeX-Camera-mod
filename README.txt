@@ -1,137 +1,90 @@
 # ApeX Camera Mod
 
-**A powerful, free, and open-source camera mod for Gorilla Tag VR**
-
-ApeX Camera Mod is a feature-rich casting and spectating tool that gives you complete control over your viewing experience in Gorilla Tag. Whether you're streaming, recording, or just want better camera control, ApeX has you covered.
+A free, open-source camera and spectating mod for Gorilla Tag. Works on PC and VR.
 
 ## Features
 
-### Multiple Camera Modes
-- **First Person** - View from any player's perspective
-- **Third Person** - Classic overhead/behind view
-- **Selfie Mode** - Capture the perfect selfie angle
-- **FreeCam** - Completely free movement camera for cinematic shots
-
-### Advanced Camera Controls
-- **Field of View (FOV) Adjustment** - Zoom in/out (0-120+)
-- **Near Clip Control** - Adjust how close objects can appear
-- **Smoothing Control** - Buttery smooth camera transitions with adjustable smoothing
-
-### Player Tracking & Spectating
-- **Follow Any Player** - Press 0-9 to quickly select and follow any player
-- **Player Information Panel** - See player names, tagged status, and cosmetics
-- **Leaderboard View** - Track all players in the game at once
-- **Real-time Updates** - Instantly see when players join/leave
-
-### Beautiful Interface
-- **Modern UI** - Clean, intuitive blue-themed interface
-- **Draggable Panels** - Move UI elements around your screen
-- **Settings Panel** - Access all camera settings in one place
-- **Mini-map** - Always know where players are
-
-### Additional Features
-- **Screenshot Tool** - Press **S** to capture the perfect moment
-- **Mode Switching** - Quick toggle between First Person and Third Person (Press **P**)
-- **Player Cosmetics** - See all player customizations and cosmetics
-- **Game-aware Detection** - Detects known cheats and mods in the game
+- **Camera Modes** - First Person, Third Person, FreeCam, Selfie
+- **FOV Presets** - Fisheye (170), Wide (100), Normal (60), Telephoto (30)
+- **Camera Controls** - FOV, Near Clip, and Smoothing sliders
+- **Mouse Scroll Zoom** - Scroll to zoom in/out
+- **Player Color Changer** - RGB sliders to change your gorilla color from the UI
+- **Player Nametags** - Shows FPS, platform, player color, and tagged [IT] indicator
+- **Spectating** - Follow any player, cycle with N/B, or pick with 0-9
+- **Screenshot** - Capture moments to your Pictures folder
+- **Minimap** - Overhead view of the map with player positions
+- **Leaderboard** - See all players at a glance
+- **Wrist Menu** - Quick info panel on your hand in VR
+- **WASD Fly** - Free flight mode on PC
+- **Fully Offline** - No external connections
 
 ## Installation
 
-1. **Download BepInEx** for Gorilla Tag (if not already installed)
-2. Place the **StickCameraMod.dll** in `BepInEx/plugins/` folder
+1. Install BepInEx for Gorilla Tag
+2. Place **StickCameraMod.dll** in `BepInEx/plugins/`
 3. Launch Gorilla Tag
-4. Press **C** to open the camera UI
+4. Press **C** to open the UI
 
 ## Controls
 
 | Key | Action |
 |-----|--------|
-| **C** | Toggle Camera UI |
-| **P** | Toggle First Person / Third Person Mode |
-| **S** | Take Screenshot (saved to Pictures folder) |
-| **0-9** | Select and follow player (by join order) |
+| **C** | Toggle UI |
+| **P** | Toggle First Person / Third Person |
+| **F1** | FOV: Fisheye (170) |
+| **F2** | FOV: Wide (100) |
+| **F3** | FOV: Normal (60) |
+| **F4** | FOV: Telephoto (30) |
+| **F5** | Take Screenshot |
+| **F6** | Toggle distance on nametags |
+| **F7** | Reset camera to defaults |
+| **N** | Next player |
+| **B** | Previous player |
+| **0-9** | Select player by number |
+| **Y** | Wrist menu (VR) |
+| **Scroll** | Zoom in/out |
 
-## Settings
+## VR Controls
 
-Access all settings from the main UI panel:
-
-### Camera Settings
-- **FOV** - Field of View (controls zoom level)
-- **Near Clip** - How close objects can appear on screen
-- **Smoothing** - Camera movement smoothing (1-100)
-
-### View Modes
-- Switch between different camera modes from the "Camera Modes" panel
-- Each mode has its own FOV and smoothing preferences
-
-### Player Selection
-- Click on player names in the "Players" panel to follow them
-- View their status (tagged/untagged) and cosmetics
-- See the leaderboard in real-time
-
-## Perfect For
-
-** **Content Creators** - Stream and record epic Gorilla Tag moments
-** **Spectators** - Watch friends play with complete control
-** **Competitive Play** - Analyze gameplay from different angles
-** **Content Production** - Create cinematic camera movements and shots
-
-## Security & Privacy
-
-ApeX Camera Mod is:
-- **100% Free** - No paywalls, no fees
-- **Open Source** - Transparent code, nothing hidden
-- **Safe** - No data collection, no tracking
-- **Lightweight** - Minimal performance impact
-- **Anti-Cheat Aware** - Detects known cheats for fair play
-
-## Tips & Tricks
-
-1. **Smooth Cinematic Shots** - Increase smoothing value for slower, more professional camera movements
-2. **Quick Zoom** - Adjust FOV on the fly for dramatic zoom effects
-3. **Multi-Angle Coverage** - Use multiple camera modes to get different perspectives
-4. **High FOV Recording** - Use high FOV values for immersive recordings
-5. **Screenshot Collection** - Press S frequently to get the perfect shot
+- **Left primary button** - Open/close VR camera panel
+- Lock button on the VR panel to pin it in place
 
 ## Troubleshooting
 
 **Camera not showing?**
 - Make sure BepInEx is installed correctly
-- Check that the DLL is in the correct folder
+- Check that the DLL is in the correct plugins folder
 - Restart Gorilla Tag
 
-**UI is hard to see?**
-- You can drag panels around to better positions
-- Adjust your monitor/headset display settings
-
 **Performance issues?**
-- Reduce smoothing value
-- Close unnecessary UI panels
-- Lower FOV value
+- Lower the smoothing and FOV values
+- Close panels you don't need
 
 ## Version History
 
+**v1.1.4**
+- New white and black UI theme (PC and VR)
+- Player color changer with RGB sliders
+- FOV presets (F1-F4)
+- Mouse scroll zoom
+- Player nametags show gorilla color and tagged status
+- Cycle players with N/B keys
+- Screenshot moved to F5
+- Camera reset on F7
+- Wrist menu with keybind info
+- Fully offline, no external connections
+- All features work on both PC and VR
+
 **v1.1.3**
-- Renamed to ApeX Camera Mod
-- Added blue themed UI
-- Added screenshot functionality
-- Improved stability and performance
-- Enhanced player detection
+- Initial ApeX Camera Mod release
 
 ## Credits
 
-- **Developer**: St1ck / ApeX
+- **Mod**: St1ck | Discord: st1ckgt
+- **Original UI**: Hansolo1000
 - **Framework**: BepInEx
 - **Game**: Gorilla Tag by Another Axiom
 
 ## License
 
-This project is licensed under the GNU General Public License v2.0
-
-See LICENSE file for details.
-
----
-
-**Made with passion for the Gorilla Tag community**
-
-*Have fun spectating!*
+GNU General Public License v2.0
