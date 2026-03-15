@@ -65,8 +65,6 @@ public class GUIHandler : Singleton<GUIHandler>
         leaderboard = Canvas.transform.Find("Leaderboard");
         mainPanel   = Canvas.transform.Find("MainPanel").gameObject;
 
-        ApplyApeXTheme();
-
         playerContent = mainPanel.transform.Find("Players/Viewport/Content");
 
         SetUpPlayerInformation(mainPanel);
@@ -115,6 +113,8 @@ public class GUIHandler : Singleton<GUIHandler>
         miniMapCamera.nearClipPlane = 10f;
         miniMapCamera.orthographic  = true;
         miniMapCamera.targetTexture = miniMapRenderTexture;
+
+        ApplyApeXTheme();
 
         initTime = Time.time;
     }
