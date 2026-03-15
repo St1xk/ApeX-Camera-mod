@@ -444,55 +444,91 @@ public class GUIHandler : Singleton<GUIHandler>
             return;
         }
 
-        Color darkBlue = new Color(0.08f, 0.15f, 0.35f, 0.95f);
-        Color lightBlue = new Color(0.3f, 0.6f, 0.95f, 1f);
-        Color accentBlue = new Color(0.0f, 0.8f, 1f, 1f);
+        // ApeX color palette - dark modern look
+        Color bgDark = new Color(0.05f, 0.05f, 0.12f, 0.97f);
+        Color bgMid = new Color(0.08f, 0.10f, 0.20f, 0.95f);
+        Color accent = new Color(0.0f, 0.75f, 1.0f, 1f);
+        Color accentDim = new Color(0.0f, 0.45f, 0.7f, 1f);
+        Color textWhite = new Color(0.9f, 0.95f, 1f, 1f);
 
-        // Apply theme to main panel with slight transparency
-        Image mainPanelImage = mainPanel.GetComponent<Image>();
-        if (mainPanelImage != null)
+        // --- Panels: dark background ---
+        Image[] allImages = Canvas.GetComponentsInChildren<Image>(true);
+        foreach (Image image in allImages)
         {
-            mainPanelImage.color = darkBlue;
-            mainPanelImage.raycastTarget = true;
+            if (image.gameObject == Canvas.gameObject) continue;
+            Color c = image.color;
+            if (c.a < 0.1f) continue; // skip invisible
+
+            // Large panels get the dark bg
+            RectTransform rt = image.GetComponent<RectTransform>();
+            if (rt != null && rt.rect.width > 80 && rt.rect.height > 80)
+                image.color = bgDark;
+            else if (c.a > 0.5f)
+                image.color = bgMid;
         }
 
-        // Add ApeX Camera Mod title at the top
+        // Main panel override
+        Image mainPanelImage = mainPanel.GetComponent<Image>();
+        if (mainPanelImage != null)
+            mainPanelImage.color = bgDark;
+
+        // --- Buttons: cyan accent with rounded feel ---
+        Button[] allButtons = Canvas.GetComponentsInChildren<Button>(true);
+        foreach (Button button in allButtons)
+        {
+            ColorBlock colors = button.colors;
+            colors.normalColor = accentDim;
+            colors.highlightedColor = accent;
+            colors.pressedColor = new Color(0.0f, 0.3f, 0.5f, 1f);
+            colors.selectedColor = accent;
+            colors.fadeDuration = 0.1f;
+            button.colors = colors;
+
+            // Make button text white
+            TextMeshProUGUI btnText = button.GetComponentInChildren<TextMeshProUGUI>();
+            if (btnText != null)
+                btnText.color = textWhite;
+        }
+
+        // --- Sliders: cyan accent ---
+        Slider[] allSliders = Canvas.GetComponentsInChildren<Slider>(true);
+        foreach (Slider slider in allSliders)
+        {
+            Image fillImage = slider.fillRect?.GetComponent<Image>();
+            if (fillImage != null)
+                fillImage.color = accent;
+
+            Image handleImage = slider.handleRect?.GetComponent<Image>();
+            if (handleImage != null)
+                handleImage.color = textWhite;
+
+            Image bgImage = slider.transform.Find("Background")?.GetComponent<Image>();
+            if (bgImage != null)
+                bgImage.color = bgMid;
+        }
+
+        // --- Text: make all text bright white/cyan ---
+        TextMeshProUGUI[] allText = Canvas.GetComponentsInChildren<TextMeshProUGUI>(true);
+        foreach (TextMeshProUGUI tmp in allText)
+        {
+            if (tmp.color.a < 0.1f) continue;
+            tmp.color = textWhite;
+        }
+
+        // --- Title: overwrite whatever is at the top ---
         Transform topArea = mainPanel.transform.Find("Top");
         if (topArea != null)
         {
             TextMeshProUGUI titleText = topArea.GetComponentInChildren<TextMeshProUGUI>();
             if (titleText != null)
-                titleText.text = "ApeX Camera Mod v1.1.4";
-        }
-
-        // Apply theme to all buttons recursively
-        Button[] allButtons = Canvas.GetComponentsInChildren<Button>(true);
-        foreach (Button button in allButtons)
-        {
-            ColorBlock colors = button.colors;
-            colors.normalColor = lightBlue;
-            colors.highlightedColor = new Color(0.5f, 0.8f, 1f, 1f);
-            colors.pressedColor = darkBlue;
-            colors.selectedColor = lightBlue;
-            button.colors = colors;
-        }
-
-        // Apply theme to all panel images
-        Image[] allImages = Canvas.GetComponentsInChildren<Image>(true);
-        foreach (Image image in allImages)
-        {
-            if (image.gameObject != Canvas.gameObject)
             {
-                Color currentColor = image.color;
-                // Only change if it's not fully transparent and not white text
-                if (currentColor.a > 0.5f && (currentColor.r != 1 || currentColor.g != 1 || currentColor.b != 1))
-                {
-                    image.color = darkBlue;
-                }
+                titleText.text = "ApeX Camera Mod";
+                titleText.color = accent;
+                titleText.fontStyle = FontStyles.Bold;
             }
         }
 
-        // Scrub any leftover old credits from the AssetBundle
+        // Scrub all old credits from the AssetBundle
         ReplaceOldCredits();
 
         Debug.Log("ApeX Camera Mod theme applied successfully!");
@@ -503,23 +539,38 @@ public class GUIHandler : Singleton<GUIHandler>
         TextMeshProUGUI[] allText = Canvas.GetComponentsInChildren<TextMeshProUGUI>(true);
         foreach (TextMeshProUGUI tmp in allText)
         {
-            if (tmp.text == null) continue;
+            if (string.IsNullOrEmpty(tmp.text)) continue;
 
             string original = tmp.text;
-            string replaced = original;
+            string lower = original.ToLower();
 
-            replaced = replaced.Replace("HanSolo1000Falcon", "St1ck");
-            replaced = replaced.Replace("HanSolo", "St1ck");
-            replaced = replaced.Replace("hansolo", "St1ck");
-            replaced = replaced.Replace("Casting Should Be Free", "ApeX Camera Mod");
-            replaced = replaced.Replace("CastingShouldBeFree", "ApeX Camera Mod");
-            replaced = replaced.Replace("castingshouldbefree", "ApeX Camera Mod");
-            replaced = replaced.Replace("hamburbur", "St1ck");
+            // If the text contains any old credit references, check what kind it is
+            bool hasOldCredit = lower.Contains("hansolo") || lower.Contains("hamburbur") ||
+                                lower.Contains("casting should be free") || lower.Contains("castingshouldbefree");
 
-            if (replaced != original)
+            if (!hasOldCredit) continue;
+
+            // If it looks like a "made by" or credit line, replace the whole thing
+            if (lower.Contains("made by") || lower.Contains("created by") ||
+                lower.Contains("developed by") || lower.Contains("author") ||
+                lower.Contains("credit"))
             {
+                tmp.text = "Made by St1ck\nDiscord: st1ckgt";
+                Debug.Log($"Replaced credit block in '{tmp.gameObject.name}'");
+            }
+            else
+            {
+                // Otherwise just swap out the names
+                string replaced = original;
+                replaced = replaced.Replace("HanSolo1000Falcon", "St1ck");
+                replaced = replaced.Replace("HanSolo", "St1ck");
+                replaced = replaced.Replace("hansolo", "St1ck");
+                replaced = replaced.Replace("Casting Should Be Free", "ApeX Camera Mod");
+                replaced = replaced.Replace("CastingShouldBeFree", "ApeX Camera Mod");
+                replaced = replaced.Replace("castingshouldbefree", "ApeX Camera Mod");
+                replaced = replaced.Replace("hamburbur", "St1ck");
                 tmp.text = replaced;
-                Debug.Log($"Replaced old credit text in '{tmp.gameObject.name}'");
+                Debug.Log($"Replaced name in '{tmp.gameObject.name}'");
             }
         }
     }
