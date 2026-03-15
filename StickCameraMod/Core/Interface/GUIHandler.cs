@@ -354,12 +354,43 @@ public class GUIHandler : Singleton<GUIHandler>
         button.GetComponentInChildren<TextMeshProUGUI>().text = rig.Creator?.NickName;
         rigButtons[rig]                                       = button;
 
+        // Theme the new button to match
+        ThemeButton(button);
+
         GameObject leaderboardEntry = Instantiate(leaderboardEntryPrefab, leaderboard);
         leaderboardEntry.GetComponentInChildren<TextMeshProUGUI>().text =
                 $"{SetColourPatch.SpawnedRigs.Count - 1}.{rig.Creator?.NickName}";
 
         leaderboardEntry.transform.Find("ColourPanel").GetComponent<Image>().color = rig.playerColor;
         leaderboardEntries[rig]                                                    = leaderboardEntry;
+
+        // Theme the leaderboard entry background
+        Image entryImg = leaderboardEntry.GetComponent<Image>();
+        if (entryImg != null) entryImg.color = new Color(0.95f, 0.95f, 0.95f, 0.97f);
+    }
+
+    private void ThemeButton(GameObject buttonObj)
+    {
+        Color btnNormal = new Color(0.15f, 0.15f, 0.15f, 1f);
+        Color btnHover  = new Color(0.30f, 0.30f, 0.30f, 1f);
+        Color btnPress  = new Color(0.05f, 0.05f, 0.05f, 1f);
+
+        Image btnImg = buttonObj.GetComponent<Image>();
+        if (btnImg != null) btnImg.color = btnNormal;
+
+        Button btn = buttonObj.GetComponent<Button>();
+        if (btn != null)
+        {
+            ColorBlock colors = btn.colors;
+            colors.normalColor      = btnNormal;
+            colors.highlightedColor = btnHover;
+            colors.pressedColor     = btnPress;
+            colors.selectedColor    = btnHover;
+            btn.colors = colors;
+        }
+
+        foreach (TextMeshProUGUI txt in buttonObj.GetComponentsInChildren<TextMeshProUGUI>(true))
+            txt.color = new Color(0.95f, 0.95f, 0.95f, 1f);
     }
 
     private void OnRigCached(VRRig rig)
@@ -516,10 +547,6 @@ public class GUIHandler : Singleton<GUIHandler>
             // Self promo / credits
             if (name == "SelfPromo")
                 tmp.text = "UI made by Hansolo1000\nMod by St1ck | Discord: st1ckgt";
-
-            // Camera mode label
-            if (name == "CameraMode")
-                tmp.text = "Spectator Cam";
 
             // Lock interface button
             if (tmp.text.Contains("Lock") && tmp.text.Contains("Interface"))
