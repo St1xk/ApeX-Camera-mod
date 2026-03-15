@@ -120,8 +120,7 @@ ApeX Camera Mod is:
 
 ## Credits
 
-- **Original Developer**: hamburbur (Casting Should Be Free concept)
-- **Current Maintainer**: St1ck / ApeX
+- **Developer**: St1ck / ApeX
 - **Framework**: BepInEx
 - **Game**: Gorilla Tag by Another Axiom
 

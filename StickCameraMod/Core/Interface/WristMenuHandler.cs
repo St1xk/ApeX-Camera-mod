@@ -8,7 +8,6 @@ public class WristMenuHandler : MonoBehaviour
 {
     private Canvas wristCanvas;
     private bool isVisible = false;
-    private Transform wristPosition;
 
     private void Start()
     {
@@ -45,7 +44,7 @@ public class WristMenuHandler : MonoBehaviour
         TextMeshProUGUI titleText = titleObj.AddComponent<TextMeshProUGUI>();
         titleText.text = "ApeX Camera";
         titleText.fontSize = 36;
-        titleText.alignment = TextAlignmentOptions.TopCenter;
+        titleText.alignment = TextAlignmentOptions.Center;
         titleText.color = new Color(0.3f, 0.6f, 0.95f, 1f);
 
         RectTransform titleRect = titleObj.GetComponent<RectTransform>();
@@ -58,7 +57,7 @@ public class WristMenuHandler : MonoBehaviour
         TextMeshProUGUI infoText = infoObj.AddComponent<TextMeshProUGUI>();
         infoText.text = "FOV: 60\nSmoothing: 18\nP - Toggle View\nS - Screenshot";
         infoText.fontSize = 20;
-        infoText.alignment = TextAlignmentOptions.BottomCenter;
+        infoText.alignment = TextAlignmentOptions.Center;
         infoText.color = Color.white;
 
         RectTransform infoRect = infoObj.GetComponent<RectTransform>();
