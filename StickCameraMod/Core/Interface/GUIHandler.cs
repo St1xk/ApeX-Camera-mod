@@ -16,9 +16,6 @@ namespace StickCameraMod.Core.Interface;
 public class GUIHandler : Singleton<GUIHandler>
 {
     public bool HasInitEventSystem;
-    public bool CameraLocked;
-    public bool AutoFollowEnabled = true;
-    public bool ShowCrosshair = false;
     public bool ShowPlayerDistance = true;
     public int ZoomSpeed = 5;
 
@@ -140,73 +137,38 @@ public class GUIHandler : Singleton<GUIHandler>
                                                               : firstPersonHandlerName;
         }
 
-        if (UnityInput.Current.GetKeyDown(KeyCode.S))
+        // Screenshot (F5 to avoid conflict with WASD fly S key)
+        if (UnityInput.Current.GetKeyDown(KeyCode.F5))
         {
             string screenshotPath = $"{System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyPictures)}/ApeXCamera_{System.DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png";
             ScreenCapture.CaptureScreenshot(screenshotPath);
             Debug.Log($"Screenshot saved to {screenshotPath}");
         }
 
+        // Quick select player by number key
         for (int i = 0; i <= 9; i++)
         {
             KeyCode key = KeyCode.Alpha0 + i;
             if (UnityInput.Current.GetKeyDown(key) && SetColourPatch.SpawnedRigs.Count > i)
             {
                 CoreHandler.Instance.CastedRig = SetColourPatch.SpawnedRigs[i];
-
                 break;
             }
         }
 
         // FOV Presets
         if (UnityInput.Current.GetKeyDown(KeyCode.F1))
-        {
             CoreHandler.Instance.SetFOV(Constants.FovFishEye);
-            Debug.Log("FOV: Fisheye (170)");
-        }
         if (UnityInput.Current.GetKeyDown(KeyCode.F2))
-        {
             CoreHandler.Instance.SetFOV(Constants.FovWide);
-            Debug.Log("FOV: Wide (100)");
-        }
         if (UnityInput.Current.GetKeyDown(KeyCode.F3))
-        {
             CoreHandler.Instance.SetFOV(Constants.FovNormal);
-            Debug.Log("FOV: Normal (60)");
-        }
         if (UnityInput.Current.GetKeyDown(KeyCode.F4))
-        {
             CoreHandler.Instance.SetFOV(Constants.FovTelephoto);
-            Debug.Log("FOV: Telephoto (30)");
-        }
 
-        // Camera Lock Toggle
-        if (UnityInput.Current.GetKeyDown(KeyCode.L))
-        {
-            CameraLocked = !CameraLocked;
-            Debug.Log($"Camera locked: {CameraLocked}");
-        }
-
-        // Auto-Follow Toggle
-        if (UnityInput.Current.GetKeyDown(KeyCode.A))
-        {
-            AutoFollowEnabled = !AutoFollowEnabled;
-            Debug.Log($"Auto-follow: {AutoFollowEnabled}");
-        }
-
-        // Crosshair Toggle
-        if (UnityInput.Current.GetKeyDown(KeyCode.X))
-        {
-            ShowCrosshair = !ShowCrosshair;
-            Debug.Log($"Crosshair: {(ShowCrosshair ? "Enabled" : "Disabled")}");
-        }
-
-        // Player Distance Toggle
-        if (UnityInput.Current.GetKeyDown(KeyCode.D))
-        {
+        // Toggle player distance on nametags
+        if (UnityInput.Current.GetKeyDown(KeyCode.F6))
             ShowPlayerDistance = !ShowPlayerDistance;
-            Debug.Log($"Player distance display: {(ShowPlayerDistance ? "Enabled" : "Disabled")}");
-        }
 
         // Zoom with Mouse Scroll
         if (UnityEngine.InputSystem.Mouse.current != null)
@@ -221,12 +183,33 @@ public class GUIHandler : Singleton<GUIHandler>
         }
 
         // Reset Camera View
-        if (UnityInput.Current.GetKeyDown(KeyCode.R))
+        if (UnityInput.Current.GetKeyDown(KeyCode.F7))
         {
             CoreHandler.Instance.SetFOV(60);
             CoreHandler.Instance.SetNearClip(1);
             CoreHandler.Instance.SetSmoothing(18);
-            Debug.Log("Camera reset to default settings");
+        }
+
+        // Cycle to next player
+        if (UnityInput.Current.GetKeyDown(KeyCode.N))
+        {
+            if (SetColourPatch.SpawnedRigs.Count > 0)
+            {
+                int currentIndex = SetColourPatch.SpawnedRigs.IndexOf(CoreHandler.Instance.CastedRig);
+                int nextIndex = (currentIndex + 1) % SetColourPatch.SpawnedRigs.Count;
+                CoreHandler.Instance.CastedRig = SetColourPatch.SpawnedRigs[nextIndex];
+            }
+        }
+
+        // Cycle to previous player
+        if (UnityInput.Current.GetKeyDown(KeyCode.B))
+        {
+            if (SetColourPatch.SpawnedRigs.Count > 0)
+            {
+                int currentIndex = SetColourPatch.SpawnedRigs.IndexOf(CoreHandler.Instance.CastedRig);
+                int prevIndex = currentIndex <= 0 ? SetColourPatch.SpawnedRigs.Count - 1 : currentIndex - 1;
+                CoreHandler.Instance.CastedRig = SetColourPatch.SpawnedRigs[prevIndex];
+            }
         }
     }
 
@@ -533,6 +516,8 @@ public class GUIHandler : Singleton<GUIHandler>
 
     private void ReplaceAllText()
     {
+        HashSet<TextMeshProUGUI> alreadySet = new();
+
         TextMeshProUGUI[] allText = Canvas.GetComponentsInChildren<TextMeshProUGUI>(true);
         foreach (TextMeshProUGUI tmp in allText)
         {
@@ -542,29 +527,43 @@ public class GUIHandler : Singleton<GUIHandler>
 
             // Title
             if (name == "Title" && tmp.text.ToLower().Contains("casting"))
+            {
                 tmp.text = "ApeX Camera Mod";
+                alreadySet.Add(tmp);
+                continue;
+            }
 
             // Self promo / credits
             if (name == "SelfPromo")
+            {
                 tmp.text = "UI made by Hansolo1000\nMod by St1ck | Discord: st1ckgt";
+                alreadySet.Add(tmp);
+                continue;
+            }
 
             // Lock interface button
             if (tmp.text.Contains("Lock") && tmp.text.Contains("Interface"))
+            {
                 tmp.text = "Pin\nOverlay";
+                alreadySet.Add(tmp);
+                continue;
+            }
 
             // Player info title
             if (name == "Title" && tmp.text.Contains("Player Information"))
+            {
                 tmp.text = "Spectate Target";
+                alreadySet.Add(tmp);
+                continue;
+            }
+        }
 
-            // Current mode
-            if (name == "CurrentMode")
-                tmp.text = "Current Mode: None";
+        // General old name replacements — skip anything we already set above
+        foreach (TextMeshProUGUI tmp in allText)
+        {
+            if (string.IsNullOrEmpty(tmp.text)) continue;
+            if (alreadySet.Contains(tmp)) continue;
 
-            // Tagged status
-            if (name == "IsTagged")
-                tmp.text = "Tagged: <color=red>No</color>";
-
-            // General old name replacements
             string lower = tmp.text.ToLower();
             if (lower.Contains("hansolo") || lower.Contains("hamburbur") ||
                 lower.Contains("casting should be free") || lower.Contains("castingshouldbefree"))

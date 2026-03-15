@@ -55,7 +55,7 @@ public class WristMenuHandler : MonoBehaviour
         GameObject infoObj = new GameObject("Info");
         infoObj.transform.SetParent(panelObj.transform);
         TextMeshProUGUI infoText = infoObj.AddComponent<TextMeshProUGUI>();
-        infoText.text = "FOV: 60\nSmoothing: 18\nP - Toggle View\nS - Screenshot";
+        infoText.text = "P - Toggle View\nF5 - Screenshot\nN/B - Next/Prev Player\nF1-F4 - FOV Presets";
         infoText.fontSize = 20;
         infoText.alignment = TextAlignmentOptions.Center;
         infoText.color = Color.white;
@@ -103,6 +103,6 @@ public class WristMenuHandler : MonoBehaviour
     public void UpdateInfo(string fov, string smoothing)
     {
         TextMeshProUGUI infoText = wristCanvas.transform.Find("Panel/Info").GetComponent<TextMeshProUGUI>();
-        infoText.text = $"FOV: {fov}\nSmoothing: {smoothing}\nP - Toggle View\nS - Screenshot\nY - Close Menu";
+        infoText.text = $"FOV: {fov} | Smoothing: {smoothing}\nP - Toggle View | F5 - Screenshot\nN/B - Next/Prev Player\nY - Close Menu";
     }
 }
