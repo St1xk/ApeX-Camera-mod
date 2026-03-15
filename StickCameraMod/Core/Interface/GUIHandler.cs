@@ -215,12 +215,6 @@ public class GUIHandler : Singleton<GUIHandler>
             }
         }
 
-        // Toggle color panel
-        if (UnityInput.Current.GetKeyDown(KeyCode.F8))
-        {
-            if (colorPanel != null)
-                colorPanel.SetActive(!colorPanel.activeSelf);
-        }
     }
 
     private void LateUpdate()
@@ -462,17 +456,19 @@ public class GUIHandler : Singleton<GUIHandler>
 
     private void SetUpColorPanel()
     {
-        // Create the color panel as a child of the Canvas
+        // Create the color panel as a child of mainPanel so it shows with the UI
         colorPanel = new GameObject("ColorPanel");
-        colorPanel.transform.SetParent(Canvas.transform, false);
-        colorPanel.AddComponent<DraggableUI>();
+        colorPanel.transform.SetParent(mainPanel.transform, false);
 
         Image panelBg = colorPanel.AddComponent<Image>();
-        panelBg.color = new Color(0.95f, 0.95f, 0.95f, 0.97f);
+        panelBg.color = new Color(0.90f, 0.90f, 0.90f, 0.97f);
 
         RectTransform panelRect = colorPanel.GetComponent<RectTransform>();
-        panelRect.sizeDelta = new Vector2(280, 220);
-        panelRect.anchoredPosition = new Vector2(-300, 0);
+        panelRect.anchorMin = new Vector2(1, 0.5f);
+        panelRect.anchorMax = new Vector2(1, 0.5f);
+        panelRect.pivot = new Vector2(0, 0.5f);
+        panelRect.sizeDelta = new Vector2(260, 200);
+        panelRect.anchoredPosition = new Vector2(5, 0);
 
         // Title
         GameObject titleObj = new GameObject("ColorTitle");
@@ -512,26 +508,21 @@ public class GUIHandler : Singleton<GUIHandler>
         CreateColorSlider(colorPanel.transform, "R", new Color(0.9f, 0.2f, 0.2f, 1f), -95, savedR, value =>
         {
             PlayerPrefs.SetFloat("redValue", value);
-            GorillaTagger.Instance.UpdateColor(value, PlayerPrefs.GetFloat("greenValue", 0.5f), PlayerPrefs.GetFloat("blueValue", 0.5f));
-            PlayerPrefs.Save();
-            UpdateColorPreview();
+            ApplyPlayerColor();
         });
 
         CreateColorSlider(colorPanel.transform, "G", new Color(0.2f, 0.8f, 0.2f, 1f), -135, savedG, value =>
         {
             PlayerPrefs.SetFloat("greenValue", value);
-            GorillaTagger.Instance.UpdateColor(PlayerPrefs.GetFloat("redValue", 0.5f), value, PlayerPrefs.GetFloat("blueValue", 0.5f));
-            UpdateColorPreview();
+            ApplyPlayerColor();
         });
 
         CreateColorSlider(colorPanel.transform, "B", new Color(0.2f, 0.4f, 0.9f, 1f), -175, savedB, value =>
         {
             PlayerPrefs.SetFloat("blueValue", value);
-            GorillaTagger.Instance.UpdateColor(PlayerPrefs.GetFloat("redValue", 0.5f), PlayerPrefs.GetFloat("greenValue", 0.5f), value);
-            UpdateColorPreview();
+            ApplyPlayerColor();
         });
 
-        colorPanel.SetActive(false);
     }
 
     private void CreateColorSlider(Transform parent, string label, Color fillColor, float yPos, float initialValue, UnityEngine.Events.UnityAction<float> onChange)
@@ -630,6 +621,16 @@ public class GUIHandler : Singleton<GUIHandler>
         slider.maxValue = 1f;
         slider.value = initialValue;
         slider.onValueChanged.AddListener(onChange);
+    }
+
+    private void ApplyPlayerColor()
+    {
+        float r = PlayerPrefs.GetFloat("redValue", 0.5f);
+        float g = PlayerPrefs.GetFloat("greenValue", 0.5f);
+        float b = PlayerPrefs.GetFloat("blueValue", 0.5f);
+        PlayerPrefs.Save();
+        GorillaTagger.Instance.UpdateColor(r, g, b);
+        UpdateColorPreview();
     }
 
     private void UpdateColorPreview()
