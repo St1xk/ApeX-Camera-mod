@@ -1,0 +1,23 @@
+# Visual Studio
+.vs/
+.vscode/
+*.sln.iml
+
+# Build output
+bin/
+obj/
+*.dll
+*.pdb
+
+# IDE
+.idea/
+*.user
+*.suo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+temp/
