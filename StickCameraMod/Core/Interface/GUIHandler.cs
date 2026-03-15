@@ -451,21 +451,26 @@ public class GUIHandler : Singleton<GUIHandler>
         Color textDark  = new Color(0.05f, 0.05f, 0.05f, 1f);     // black text
         Color textLight = new Color(0.95f, 0.95f, 0.95f, 1f);     // white text (for dark buttons)
 
-        // Panels
+        // Panels - recolor everything except sliders and buttons
         foreach (Image img in Canvas.GetComponentsInChildren<Image>(true))
         {
             if (img.color.a < 0.1f) continue;
             Slider parentSlider = img.GetComponentInParent<Slider>();
             if (parentSlider != null) continue;
+            Button parentButton = img.GetComponentInParent<Button>();
+            if (parentButton != null) continue;
             img.color = bgPanel;
         }
 
         Image mainImg = mainPanel.GetComponent<Image>();
         if (mainImg != null) mainImg.color = bgPanel;
 
-        // Buttons
+        // Buttons - recolor the button image and color block
         foreach (Button btn in Canvas.GetComponentsInChildren<Button>(true))
         {
+            Image btnImg = btn.GetComponent<Image>();
+            if (btnImg != null) btnImg.color = btnNormal;
+
             ColorBlock colors = btn.colors;
             colors.normalColor      = btnNormal;
             colors.highlightedColor = btnHover;
@@ -475,6 +480,19 @@ public class GUIHandler : Singleton<GUIHandler>
 
             TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null) btnText.color = textLight;
+        }
+
+        // Scroll view backgrounds (Players list, Camera Modes list)
+        foreach (ScrollRect scroll in Canvas.GetComponentsInChildren<ScrollRect>(true))
+        {
+            Image scrollImg = scroll.GetComponent<Image>();
+            if (scrollImg != null) scrollImg.color = bgDarker;
+
+            if (scroll.viewport != null)
+            {
+                Image vpImg = scroll.viewport.GetComponent<Image>();
+                if (vpImg != null) vpImg.color = bgDarker;
+            }
         }
 
         // Sliders
@@ -518,7 +536,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
             // Self promo / credits
             if (name == "SelfPromo")
-                tmp.text = "UI by Casting Should Be Free devs\nMod by St1ck | Discord: st1ckgt";
+                tmp.text = "UI made by Hansolo1000\nMod by St1ck | Discord: st1ckgt";
 
             // Camera mode label
             if (name == "CameraMode")
