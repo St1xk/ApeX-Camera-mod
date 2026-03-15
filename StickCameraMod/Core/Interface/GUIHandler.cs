@@ -451,51 +451,14 @@ public class GUIHandler : Singleton<GUIHandler>
         Color textDark  = new Color(0.05f, 0.05f, 0.05f, 1f);     // black text
         Color textLight = new Color(0.95f, 0.95f, 0.95f, 1f);     // white text (for dark buttons)
 
-        // Panels - recolor everything except sliders and buttons
+        // Step 1: Recolor EVERY image to light grey (nukes all purple)
         foreach (Image img in Canvas.GetComponentsInChildren<Image>(true))
         {
             if (img.color.a < 0.1f) continue;
-            Slider parentSlider = img.GetComponentInParent<Slider>();
-            if (parentSlider != null) continue;
-            Button parentButton = img.GetComponentInParent<Button>();
-            if (parentButton != null) continue;
             img.color = bgPanel;
         }
 
-        Image mainImg = mainPanel.GetComponent<Image>();
-        if (mainImg != null) mainImg.color = bgPanel;
-
-        // Buttons - recolor the button image and color block
-        foreach (Button btn in Canvas.GetComponentsInChildren<Button>(true))
-        {
-            Image btnImg = btn.GetComponent<Image>();
-            if (btnImg != null) btnImg.color = btnNormal;
-
-            ColorBlock colors = btn.colors;
-            colors.normalColor      = btnNormal;
-            colors.highlightedColor = btnHover;
-            colors.pressedColor     = btnPress;
-            colors.selectedColor    = btnHover;
-            btn.colors = colors;
-
-            TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
-            if (btnText != null) btnText.color = textLight;
-        }
-
-        // Scroll view backgrounds (Players list, Camera Modes list)
-        foreach (ScrollRect scroll in Canvas.GetComponentsInChildren<ScrollRect>(true))
-        {
-            Image scrollImg = scroll.GetComponent<Image>();
-            if (scrollImg != null) scrollImg.color = bgDarker;
-
-            if (scroll.viewport != null)
-            {
-                Image vpImg = scroll.viewport.GetComponent<Image>();
-                if (vpImg != null) vpImg.color = bgDarker;
-            }
-        }
-
-        // Sliders
+        // Step 2: Sliders - set fill, handle, background
         foreach (Slider slider in Canvas.GetComponentsInChildren<Slider>(true))
         {
             Image fillImg = slider.fillRect?.GetComponent<Image>();
@@ -508,13 +471,29 @@ public class GUIHandler : Singleton<GUIHandler>
             if (bgImg != null) bgImg.color = sliderBg;
         }
 
-        // Text - black on light panels
+        // Step 3: ALL text to black first
         foreach (TextMeshProUGUI tmp in Canvas.GetComponentsInChildren<TextMeshProUGUI>(true))
         {
             if (tmp.color.a < 0.1f) continue;
-            // Skip text inside buttons (those stay white)
-            if (tmp.GetComponentInParent<Button>() != null) continue;
             tmp.color = textDark;
+        }
+
+        // Step 4: Buttons - dark background, white text (AFTER text loop so it overrides)
+        foreach (Button btn in Canvas.GetComponentsInChildren<Button>(true))
+        {
+            Image btnImg = btn.GetComponent<Image>();
+            if (btnImg != null) btnImg.color = btnNormal;
+
+            ColorBlock colors = btn.colors;
+            colors.normalColor      = btnNormal;
+            colors.highlightedColor = btnHover;
+            colors.pressedColor     = btnPress;
+            colors.selectedColor    = btnHover;
+            btn.colors = colors;
+
+            // Force ALL text inside this button to white
+            foreach (TextMeshProUGUI btnText in btn.GetComponentsInChildren<TextMeshProUGUI>(true))
+                btnText.color = textLight;
         }
 
         // Rename all UI text to match ApeX features
