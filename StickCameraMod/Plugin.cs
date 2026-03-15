@@ -89,6 +89,7 @@ public class Plugin : BaseUnityPlugin
         componentHolder.AddComponent<CoreHandler>();
         componentHolder.AddComponent<NametagHandler>();
         componentHolder.AddComponent<AutoCaster>();
+        componentHolder.AddComponent<WristMenuHandler>();
 
         // Network endpoints removed for offline compatibility
         // StartCoroutine(LoadKnownCheatsAndMods());
